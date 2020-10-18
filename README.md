@@ -2,6 +2,15 @@
 
 This is the starter code base for the "Make Code More Testable" class.
 
+# Requirements
+
+You **must have** the following already set up and running on your machine:
+
+* Java 11 or later
+* Maven 3.6 or later - including settings to properly connect to your internal artifact repository, if any
+* A development environment such as IntelliJ IDEA or Eclipse
+
+
 ## Running and Playing the Game
 
 To run the game, it works best if you run it in a real terminal window and not inside of the IDE.
