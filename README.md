@@ -10,6 +10,17 @@ You **must have** the following already set up and running on your machine:
 * Maven 3.6 or later - including settings to properly connect to your internal artifact repository, if any
 * A development environment such as IntelliJ IDEA or Eclipse
 
+# Setting Up Project
+
+Before opening up the project using your development environment, make sure that you can build the project from the command-line by running:
+
+```sh
+mvn compile
+``` 
+
+If you get errors about dependencies being unavailable, that means your machine isn't set up correctly to get the dependencies from your artifact repository. Please work with your tech support or your colleagues to resolve this issue as it completely depends on your machine's VPN and security set up.
+
+Once the project compiles from the command-line, open it in your development environment and ensure that you can run all of the unit tests -- if everything is set up properly, they will all pass.
 
 ## Running and Playing the Game
 
