@@ -52,6 +52,39 @@ public class Game {
   public void play() {
     // get Player's decision: hit until they stand, then they're done (or they go bust)
     boolean playerBusted = false;
+    playerBusted = playerTurn(playerBusted);
+
+    dealerTurn(playerBusted);
+
+    displayFinalGameState();
+
+    displayOutcome(playerBusted);
+  }
+
+  private void displayOutcome(boolean playerBusted) {
+    if (playerBusted) {
+      System.out.println("You Busted, so you lose.  💸");
+    } else if (handValueOf(dealerHand) > 21) {
+      System.out.println("Dealer went BUST, Player wins! Yay for you!! 💵");
+    } else if (handValueOf(dealerHand) < handValueOf(playerHand)) {
+      System.out.println("You beat the Dealer! 💵");
+    } else if (handValueOf(dealerHand) == handValueOf(playerHand)) {
+      System.out.println("Push: The house wins, you Lose. 💸");
+    } else {
+      System.out.println("You lost to the Dealer. 💸");
+    }
+  }
+
+  private void dealerTurn(boolean playerBusted) {
+    // Dealer makes its choice automatically based on a simple heuristic (<=16, hit, 17>stand)
+    if (!playerBusted) {
+      while (handValueOf(dealerHand) <= 16) {
+        dealerHand.add(deck.draw());
+      }
+    }
+  }
+
+  private boolean playerTurn(boolean playerBusted) {
     while (!playerBusted) {
       displayGameState();
       String playerChoice = inputFromPlayer().toLowerCase();
@@ -67,27 +100,7 @@ public class Game {
         System.out.println("You need to [H]it or [S]tand");
       }
     }
-
-    // Dealer makes its choice automatically based on a simple heuristic (<=16, hit, 17>stand)
-    if (!playerBusted) {
-      while (handValueOf(dealerHand) <= 16) {
-        dealerHand.add(deck.draw());
-      }
-    }
-
-    displayFinalGameState();
-
-    if (playerBusted) {
-      System.out.println("You Busted, so you lose.  💸");
-    } else if (handValueOf(dealerHand) > 21) {
-      System.out.println("Dealer went BUST, Player wins! Yay for you!! 💵");
-    } else if (handValueOf(dealerHand) < handValueOf(playerHand)) {
-      System.out.println("You beat the Dealer! 💵");
-    } else if (handValueOf(dealerHand) == handValueOf(playerHand)) {
-      System.out.println("Push: The house wins, you Lose. 💸");
-    } else {
-      System.out.println("You lost to the Dealer. 💸");
-    }
+    return playerBusted;
   }
 
   public int handValueOf(List<Card> hand) {
