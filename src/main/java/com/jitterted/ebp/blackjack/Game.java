@@ -11,6 +11,7 @@ import static org.fusesource.jansi.Ansi.ansi;
 
 public class Game {
 
+  public static final int INITIAL_NUMBER_OF_DEALS = 2;
   private final Deck deck;
 
   private final List<Card> dealerHand = new ArrayList<>();
@@ -18,7 +19,17 @@ public class Game {
 
   public static void main(String[] args) {
     Game game = new Game();
+    displayGreetings();
+    game.initialDeal();
+    game.play();
+    resetDisplay();
+  }
 
+  private static void resetDisplay() {
+    System.out.println(ansi().reset());
+  }
+
+  private static void displayGreetings() {
     System.out.println(ansi()
                            .bgBright(Ansi.Color.WHITE)
                            .eraseScreen()
@@ -26,12 +37,6 @@ public class Game {
                            .fgGreen().a("Welcome to")
                            .fgRed().a(" Jitterted's")
                            .fgBlack().a(" BlackJack"));
-
-
-    game.initialDeal();
-    game.play();
-
-    System.out.println(ansi().reset());
   }
 
   public Game() {
@@ -39,29 +44,58 @@ public class Game {
   }
 
   public void initialDeal() {
-
-    // deal first round of cards, players first
-    playerHand.add(deck.draw());
-    dealerHand.add(deck.draw());
-
-    // deal next round of cards
-    playerHand.add(deck.draw());
-    dealerHand.add(deck.draw());
+    deal(INITIAL_NUMBER_OF_DEALS);
   }
+
+  private void deal(int numberOfDeals) {
+    for(int i=0; i<numberOfDeals; i++) {
+      dealTo(playerHand);
+      dealTo(dealerHand);
+    }
+  }
+
+  private void dealTo(List<Card> playerHand) {
+    playerHand.add(deck.draw());
+  }
+
 
   public void play() {
     // get Player's decision: hit until they stand, then they're done (or they go bust)
-    boolean playerBusted = false;
-    playerBusted = playerTurn(playerBusted);
+    boolean playerBusted = playerTurn();
 
+    // Dealer makes its choice automatically based on a simple heuristic (<=16, hit, 17>stand)
     dealerTurn(playerBusted);
 
     displayFinalGameState();
 
-    displayOutcome(playerBusted);
+    displayPlayerBustedState(playerBusted);
   }
 
-  private void displayOutcome(boolean playerBusted) {
+  private boolean playerTurn() {
+    boolean playerBusted = false;
+    while (!playerBusted) {
+      displayGameState();
+      String playerChoice = getPlayerChoice();
+      if (isPlayerWantToStand(playerChoice)) {
+        break;
+      }
+      playerBusted = isPlayerBusted(playerChoice);
+    }
+    return playerBusted;
+  }
+
+  private boolean isPlayerBusted(String playerChoice) {
+    boolean playerBusted = false;
+    if (isPlayerWantToHit(playerChoice)) {
+      dealTo(playerHand);
+      playerBusted = isPlayerBusted();
+    } else {
+      System.out.println("You need to [H]it or [S]tand");
+    }
+    return playerBusted;
+  }
+
+  private void displayPlayerBustedState(boolean playerBusted) {
     if (playerBusted) {
       System.out.println("You Busted, so you lose.  💸");
     } else if (handValueOf(dealerHand) > 21) {
@@ -76,50 +110,63 @@ public class Game {
   }
 
   private void dealerTurn(boolean playerBusted) {
-    // Dealer makes its choice automatically based on a simple heuristic (<=16, hit, 17>stand)
     if (!playerBusted) {
       while (handValueOf(dealerHand) <= 16) {
-        dealerHand.add(deck.draw());
+        dealTo(dealerHand);
       }
     }
   }
 
-  private boolean playerTurn(boolean playerBusted) {
-    while (!playerBusted) {
-      displayGameState();
-      String playerChoice = inputFromPlayer().toLowerCase();
-      if (playerChoice.startsWith("s")) {
-        break;
-      }
-      if (playerChoice.startsWith("h")) {
-        playerHand.add(deck.draw());
-        if (handValueOf(playerHand) > 21) {
-          playerBusted = true;
-        }
-      } else {
-        System.out.println("You need to [H]it or [S]tand");
-      }
+  private boolean isPlayerBusted() {
+    boolean playerBusted = false;
+    if (handValueOf(playerHand) > 21) {
+      playerBusted = true;
     }
     return playerBusted;
   }
 
+  private String getPlayerChoice() {
+    return inputFromPlayer().toLowerCase();
+  }
+
+  private boolean isPlayerWantToHit(String playerChoice) {
+    return playerChoice.startsWith("h");
+  }
+
+  private boolean isPlayerWantToStand(String playerChoice) {
+    return playerChoice.startsWith("s");
+  }
+
   public int handValueOf(List<Card> hand) {
-    int handValue = hand
-        .stream()
-        .mapToInt(Card::rankValue)
-        .sum();
+    int handValue = sumOfAllCardsOnHand(hand);
 
     // does the hand contain at least 1 Ace?
-    boolean hasAce = hand
-        .stream()
-        .anyMatch(card -> card.rankValue() == 1);
+    boolean hasAce = IsPlayerHasAce(hand);
 
     // if the total hand value <= 11, then count the Ace as 11 by adding 10
+    handValue = addAceValue(handValue, hasAce);
+
+    return handValue;
+  }
+
+  private int sumOfAllCardsOnHand(List<Card> hand) {
+    return hand
+            .stream()
+            .mapToInt(Card::rankValue)
+            .sum();
+  }
+
+  private int addAceValue(int handValue, boolean hasAce) {
     if (hasAce && handValue < 11) {
       handValue += 10;
     }
-
     return handValue;
+  }
+
+  private boolean IsPlayerHasAce(List<Card> hand) {
+    return hand
+            .stream()
+            .anyMatch(card -> card.rankValue() == 1);
   }
 
   private String inputFromPlayer() {
@@ -129,9 +176,7 @@ public class Game {
   }
 
   private void displayGameState() {
-    System.out.print(ansi().eraseScreen().cursor(1, 1));
-    System.out.println("Dealer has: ");
-    System.out.println(dealerHand.get(0).display()); // first card is Face Up
+    displayFaceUpCard();
 
     // second card is the hole card, which is hidden
     displayBackOfCard();
@@ -140,6 +185,12 @@ public class Game {
     System.out.println("Player has: ");
     displayHand(playerHand);
     System.out.println(" (" + handValueOf(playerHand) + ")");
+  }
+
+  private void displayFaceUpCard() {
+    System.out.print(ansi().eraseScreen().cursor(1, 1));
+    System.out.println("Dealer has: ");
+    System.out.println(dealerHand.get(0).display()); // first card is Face Up
   }
 
   private void displayBackOfCard() {
