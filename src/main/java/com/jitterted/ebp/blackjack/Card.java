@@ -5,10 +5,10 @@ import org.fusesource.jansi.Ansi;
 import static org.fusesource.jansi.Ansi.ansi;
 
 public class Card {
-  private final String suit;
+  private final Suit suit;
   private final String rank;
 
-  public Card(String suit, String rank) {
+  public Card(Suit suit, String rank) {
     this.suit = suit;
     this.rank = rank;
   }
@@ -33,7 +33,7 @@ public class Card {
     lines[5] = String.format("│       %s%s│", rank.equals("10") ? "" : " ", rank);
     lines[6] = "└─────────┘";
 
-    Ansi.Color cardColor = "♥♦".contains(suit) ? Ansi.Color.RED : Ansi.Color.BLACK;
+    Ansi.Color cardColor = "♥♦".contains(suit.symbol()) ? Ansi.Color.RED : Ansi.Color.BLACK;
     return ansi()
         .fg(cardColor).toString()
         + String.join(ansi().cursorDown(1)
