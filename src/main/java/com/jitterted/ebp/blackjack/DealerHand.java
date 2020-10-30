@@ -11,7 +11,7 @@ public class DealerHand extends Hand{
 
     public void dealerTurn(boolean playerBusted,Deck deck) {
         if (!playerBusted) {
-            while (handValueOf() <= 16) {
+            while (value() <= 16) {
                 drawFromDeck(deck);
             }
         }

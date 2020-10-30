@@ -13,9 +13,9 @@ public class PlayerHand extends Hand{
     }
 
     public void displayPlayerBustedState(Hand dealerHand) {
-      if (dealerHand.handValueOf() < handValueOf()) {
+      if (dealerHand.value() < value()) {
         System.out.println("You beat the Dealer! 💵");
-      } else if (dealerHand.handValueOf() == handValueOf()) {
+      } else if (dealerHand.value() == value()) {
         System.out.println("Push: The house wins, you Lose. 💸");
       } else {
         System.out.println("You lost to the Dealer. 💸");
@@ -24,7 +24,7 @@ public class PlayerHand extends Hand{
 
     public boolean isPlayerBusted() {
         boolean playerBusted = false;
-        if (handValueOf() > 21) {
+        if (value() > 21) {
             playerBusted = true;
         }
         return playerBusted;

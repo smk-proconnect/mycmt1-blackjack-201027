@@ -117,7 +117,7 @@ public class Game {
     System.out.println();
     System.out.println("Player has: ");
     playerHand.displayHand();
-    System.out.println(" (" + playerHand.handValueOf() + ")");
+    System.out.println(" (" + playerHand.value() + ")");
   }
 
 
@@ -140,11 +140,11 @@ public class Game {
     System.out.print(ansi().eraseScreen().cursor(1, 1));
     System.out.println("Dealer has: ");
     playerHand.displayHand();
-    System.out.println(" (" + playerHand.handValueOf() + ")");
+    System.out.println(" (" + playerHand.value() + ")");
 
     System.out.println();
     System.out.println("Player has: ");
     playerHand.displayHand();
-    System.out.println(" (" + playerHand.handValueOf() + ")");
+    System.out.println(" (" + playerHand.value() + ")");
   }
 }

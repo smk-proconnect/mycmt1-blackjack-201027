@@ -15,7 +15,7 @@ public class Hand {
       cards.add(deck.draw());
     }
 
-    public int handValueOf() {
+    public int value() {
       int handValue = sumOfAllCardsOnHand();
 
       // does the hand contain at least 1 Ace?
